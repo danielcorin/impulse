@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package invoice;
+
+message Invoice {
+  string invoice_number = 1;
+  string invoice_date = 2;
+  string due_date = 3;
+  string customer_name = 4;
+  repeated LineItem items = 5;
+  double total_amount = 6;
+
+  message LineItem {
+    string description = 1;
+    int32 quantity = 2;
+    double unit_price = 3;
+    double total_price = 4;
+  }
+}

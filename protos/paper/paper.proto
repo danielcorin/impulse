@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package paper;
+
+message ResearchPaper {
+  string title = 1;
+  repeated string authors = 2;
+  string abstract = 3;
+  string publication_date = 4;
+  string journal = 5;
+  string doi = 6;
+  repeated string keywords = 7;
+  int32 citation_count = 8;
+}

@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package receipt;
+
+message Receipt {
+  string id = 1;
+  string merchant_name = 2;
+  int64 timestamp = 3;
+  double total_amount = 4;
+  repeated Item items = 5;
+
+  message Item {
+    string name = 1;
+    double price = 2;
+    int32 quantity = 3;
+  }
+}
