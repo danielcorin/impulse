@@ -1,4 +1,8 @@
 anthropic
+grpcio
+grpcio-tools
+httpx
 openai
 protobuf
 PyMuPDF
+watchdog

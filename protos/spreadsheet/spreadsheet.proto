@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package spreadsheet;
+
+message Cell {
+  string value = 1;
+}
+
+message Row {
+  repeated Cell cells = 1;
+}
+
+message Sheet {
+  string name = 1;
+  repeated Row rows = 2;
+}
+
+message Spreadsheet {
+  repeated Sheet sheets = 1;
+}

@@ -5,6 +5,7 @@ import json
 import sys
 from pathlib import Path
 from typing import Any, List, Optional
+import httpx
 
 from google.protobuf.json_format import Parse
 from openai import OpenAI
@@ -68,7 +69,9 @@ def main(args: Optional[list[str]] = None) -> None:
     )
     parser.add_argument("--proto", type=str, help="The proto file path")
     parser.add_argument(
-        "--file_path", type=str, help="Path to the receipt image or PDF"
+        "--file_path",
+        type=str,
+        help="Path to the receipt image or PDF, or URL to download from",
     )
     parser.add_argument(
         "--model",
@@ -97,7 +100,7 @@ def main(args: Optional[list[str]] = None) -> None:
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
 
-    # Now you can use the imported module and the schema
+    # Now we can use the imported module and the schema
     file_container = process_file(parsed_args.file_path)
     result = extract_from_file_container(file_container, schema, parsed_args.model)
     result = result.replace("```json", "").replace("```", "")
@@ -113,7 +116,14 @@ def main(args: Optional[list[str]] = None) -> None:
 def process_file(file_path: str) -> FileContainer:
     file_container = FileContainer()
 
-    if file_path.lower().endswith(".pdf"):
+    if file_path.lower().startswith(("http://", "https://")):
+        with httpx.Client() as client:
+            response = client.get(file_path)
+            response.raise_for_status()
+            content = response.content
+        file_container.add_page(content)
+        file_container.set_image_type(Path(file_path).suffix[1:] or "jpeg")
+    elif file_path.lower().endswith(".pdf"):
         pdf_document = fitz.open(file_path)
         for page in pdf_document:
             pix = page.get_pixmap(matrix=fitz.Matrix(2, 2))  # Increase resolution by 2x

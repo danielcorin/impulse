@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package filesystem;
+
+message File {
+  string name = 1;
+  int64 size = 2;
+}
+
+message Directory {
+  string name = 1;
+  repeated File files = 2;
+  repeated Directory directories = 3;
+}
+
+message Tree {
+  Directory root = 1;
+}
