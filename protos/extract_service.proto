@@ -12,10 +12,9 @@ message ExtractRequest {
   string proto_schema = 1;
   string file_path = 2;
   string model = 3;
-  string target_obj = 4;  // Add this field to specify the target protobuf object
 }
 
 message ExtractResponse {
-  string json_result = 1;
-  google.protobuf.Any proto_instance = 2;
+  google.protobuf.Any proto_instance = 1;
+  string json_result = 2;
 }

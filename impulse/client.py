@@ -1,9 +1,12 @@
-import importlib
 from pathlib import Path
+import zipimport
 import grpc
 import argparse
-from gen.protos import extract_service_pb2
-from gen.protos import extract_service_pb2_grpc
+from typing import Any
+
+importer = zipimport.zipimporter("gen.zip")
+extract_service_pb2 = importer.load_module("extract_service_pb2")
+extract_service_pb2_grpc = importer.load_module("extract_service_pb2_grpc")
 
 
 def run(file_path: str, proto_schema: str, model: str):
@@ -22,14 +25,15 @@ def create_request(file_path: str, proto_schema: str, model: str):
     )
 
 
-def process_response(response, proto_schema):
+def process_response(response: extract_service_pb2.ExtractResponse, proto_schema: str):
     print("JSON Result:")
     print(response.json_result)
     unpacked_proto = unpack_proto_instance(response.proto_instance, proto_schema)
+    print(f"Proto instance ({type(unpacked_proto)}):")
     print(unpacked_proto)
 
 
-def unpack_proto_instance(proto_instance, proto_schema):
+def unpack_proto_instance(proto_instance: Any, proto_schema: str) -> Any:
     path, target_obj = proto_schema.split(":")
     module = import_proto_module(path)
     proto_class = getattr(module, target_obj)
@@ -42,12 +46,10 @@ def unpack_proto_instance(proto_instance, proto_schema):
 
 def import_proto_module(path: str):
     proto_path = Path(path)
-    module_name = proto_path.stem + "_pb2"
-    gen_path = Path("gen") / proto_path.relative_to(proto_path.anchor)
-    gen_path = gen_path.with_name(module_name + ".py")
-    spec = importlib.util.spec_from_file_location(module_name, str(gen_path))
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
+    module_name = str(proto_path.with_suffix("")).replace("protos/", "") + "_pb2"
+
+    # Import the module directly from the ZIP file
+    module = importer.load_module(module_name)
     return module
 
 

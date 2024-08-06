@@ -15,7 +15,7 @@ from PIL import Image
 import io
 
 PROMPT = """{schema}
-Using the provided content and images, extract data as JSON in adherence to the above schema.
+Using the provided content and images, extract an instance of `{target_obj}` as JSON in adherence to the above schema.
 If multiple pages or images are provided, combine the information into a single JSON object.
 No talk. JSON only.
 """
@@ -102,8 +102,10 @@ def main(args: Optional[list[str]] = None) -> None:
 
     # Now we can use the imported module and the schema
     file_container = process_file(parsed_args.file_path)
-    result = extract_from_file_container(file_container, schema, parsed_args.model)
-    result = result.replace("```json", "").replace("```", "")
+    result = extract_from_file_container(
+        file_container, schema, target_obj, parsed_args.model
+    )
+    result = result.strip().removeprefix("```json").removesuffix("```")
     print("Extracted JSON:")
     print(result)
 
@@ -142,18 +144,18 @@ def process_file(file_path: str) -> FileContainer:
 
 
 def extract_from_file_container(
-    file_container: FileContainer, schema: str, model: str
+    file_container: FileContainer, schema: str, target_obj: str, model: str
 ) -> Optional[str]:
     if model == "openai":
-        return extract_from_file_container_openai(file_container, schema)
+        return extract_from_file_container_openai(file_container, schema, target_obj)
     elif model == "anthropic":
-        return extract_from_file_container_anthropic(file_container, schema)
+        return extract_from_file_container_anthropic(file_container, schema, target_obj)
     else:
         raise ValueError(f"Unsupported model: {model}")
 
 
 def extract_from_file_container_openai(
-    file_container: FileContainer, schema: str
+    file_container: FileContainer, schema: str, target_obj: str
 ) -> Optional[str]:
     # Initialize the OpenAI client
     client = OpenAI()
@@ -167,7 +169,7 @@ def extract_from_file_container_openai(
     content = [
         {
             "type": "text",
-            "text": PROMPT.format(schema=schema),
+            "text": PROMPT.format(schema=schema, target_obj=target_obj),
         }
     ]
     for encoded_image in encoded_images:
@@ -200,13 +202,13 @@ def extract_from_file_container_openai(
 
 
 def extract_from_file_container_anthropic(
-    file_container: FileContainer, schema: str
+    file_container: FileContainer, schema: str, target_obj: str
 ) -> Optional[str]:
     # Initialize the Anthropic client
     client = anthropic.Anthropic()
 
     # Prepare the content for the API call
-    content = PROMPT.format(schema=schema)
+    content = PROMPT.format(schema=schema, target_obj=target_obj)
     messages = [
         {"type": "text", "text": content},
         *[
