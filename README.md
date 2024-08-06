@@ -11,7 +11,17 @@ Since the Protobuf message serves as both the data model in the application and 
 
 ## Try it out
 
-### Install and codegen
+This project uses [`direnv`](https://direnv.net/) to manage its environment.
+If you use `direnv` copy `.envrc.template` and add the API keys for the services you intend to use.
+All are optional, but OpenAI is used by default.
+
+```sh
+cp .envrc.template .envrc
+```
+
+If you don't want to use `direnv`, you will still need to add the environment variables using your preferred approach.
+
+### Install dependencies and run codegen
 
 ```sh
 make install protos
