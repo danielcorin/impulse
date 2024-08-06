@@ -3,6 +3,7 @@ grpcio
 grpcio-tools
 httpx
 openai
+Pillow
 protobuf
 PyMuPDF
 watchdog

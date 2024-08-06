@@ -52,6 +52,8 @@ openai==1.37.1
     # via -r requirements.in
 packaging==24.1
     # via huggingface-hub
+pillow==10.4.0
+    # via -r requirements.in
 protobuf==5.27.2
     # via
     #   -r requirements.in
