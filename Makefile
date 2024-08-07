@@ -19,7 +19,3 @@ protos:
 serve:
 	. .venv/bin/activate && \
 	watchmedo auto-restart --pattern="*.py" --recursive -- python -m impulse.server
-
-which:
-	. .venv/bin/activate && \
-	which python
